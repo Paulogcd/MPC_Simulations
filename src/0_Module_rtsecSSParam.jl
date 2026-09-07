@@ -7,7 +7,7 @@ function rtsecSSParam(lx1, lx2, facc, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kapp
     x1 = lx1
     x2 = lx2
 
-    fl=FnSSParam(lx1, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kappa, aldist, algrid, edist, egrid, zdist, zgrid, Display, BendPointsPostTax, ScaleBendPoints, UseFinalZPension, MatchAggPensionBen, avearnspre, avearnspost, mgrid, pencap, targetSSBenToLabinc, targetSSAvReplacement)[1]
+    fl = FnSSParam(lx1, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kappa, aldist, algrid, edist, egrid, zdist, zgrid, Display, BendPointsPostTax, ScaleBendPoints, UseFinalZPension, MatchAggPensionBen, avearnspre, avearnspost, mgrid, pencap, targetSSBenToLabinc, targetSSAvReplacement)[1]
     if abs(fl)<facc
         disp("early return 1()")
         return [rtsec, pgrid, ppregrid, pind]

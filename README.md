@@ -1,3 +1,5 @@
-# MyPkg
+# MPC_Simulations
 
-[![Build Status](https://github.com/Paulogcd/MyPkg.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Paulogcd/MyPkg.jl/actions/workflows/CI.yml?query=branch%3Amain)
+This repository is dedicated to the working project of Jeanne Commault regarding interactive MPC work.
+
+[![Build Status](https://github.com/Paulogcd/MPC_Simulations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Paulogcd/MPC_Simulations.jl/actions/workflows/CI.yml?query=branch%3Amain)
