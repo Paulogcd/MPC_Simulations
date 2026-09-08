@@ -32,3 +32,5 @@ function FindLinProb1(x, xi)
 
     return [y, p]
 end
+
+export FindLinProb1

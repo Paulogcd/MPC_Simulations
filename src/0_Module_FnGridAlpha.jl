@@ -49,3 +49,5 @@ function FnGridAlpha(lx, SDAlpha, ngpal)
 
     [FnGridAlpha, aldist, algrid]
 end
+
+export FnGridAlpha
