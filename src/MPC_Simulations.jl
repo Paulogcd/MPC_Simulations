@@ -23,6 +23,11 @@ module MPC_Simulations
     include("0_Module_FnTaxParamNet.jl")
     include("0_Module_zbrentTaxParamNet.jl")
 
+    # Other
+    include("./0_Module_FnTaxParamNetMA0Nu.jl")
+    include("./0_Module_FnTaxParamNetMA0NuUI.jl")
+    include("./0_Module_FnTaxParamNetMA0NuUI2.jl")
+
     @info("Utils loaded.")
     
 end
