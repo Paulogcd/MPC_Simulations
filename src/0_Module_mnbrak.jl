@@ -88,3 +88,5 @@ function mnbrak(ax, bx, func)
 
     [axx, bxx, cx, fa, fb, fc]
 end
+
+export mnbrak

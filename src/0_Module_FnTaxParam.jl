@@ -111,3 +111,5 @@ function FnTaxParam(lstax, Twork, ngpz, ngpe, kappa, edist, egrid, zdist, zgrid,
 
     [FnTaxParam, ypregrid, ygrid, avearnspre, avearnspost, totlabincpre, totlabincpost];
 end
+
+export FnTaxParam

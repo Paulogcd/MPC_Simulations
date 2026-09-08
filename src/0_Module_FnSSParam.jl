@@ -193,3 +193,5 @@ function FnSSParam(lsspar, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kappa, aldist, 
     [FnSSParam, pgrid, ppregrid, pind]
 
 end
+
+export FnSSParam

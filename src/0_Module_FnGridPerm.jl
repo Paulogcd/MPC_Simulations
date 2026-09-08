@@ -90,3 +90,5 @@ function FnGridPerm(lx, EPerm1, EPerm2, RobustSDPerm1, RobustSDPerm2, pPerm1, Tw
 
     [FnGridPerm, varzapprox, zdist, zgrid, ztrans]
 end
+
+export FnGridPerm

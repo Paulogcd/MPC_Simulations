@@ -53,3 +53,5 @@ function FnGridTrans(lx, ETrans1, ETrans2, RobustSDTrans1, RobustSDTrans2, pTran
 
     [FnGridTrans, edist, egrid]
 end
+
+export FnGridTrans

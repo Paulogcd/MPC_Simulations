@@ -51,3 +51,5 @@ function rtsecSSParam_lowr(lx1, lx2, facc, Twork, Tret, ngpm, ngpz, ngpe, ngpal,
 
     return [rtsec, pgrid, ppregrid, pind]
 end
+
+export rtsecSSParam_lowr

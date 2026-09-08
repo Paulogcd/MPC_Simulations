@@ -168,3 +168,5 @@ function FnTaxParamNet(lstax, Twork, ngpz, ngpe, kappa, edist, egrid, zdist, zgr
 
     [FnTaxParamNet, ypregrid, ygrid, avearnspre, avearnspost, totlabincpre, totlabincpost];
 end
+
+export FnTaxParamNet

@@ -102,3 +102,5 @@ function zbrentTaxParamNet(x1, x2, tol, func)
 
     [zbrent, ypregrid, ygrid, avearnspre, avearnspost, totlabincpre, totlabincpost]
 end
+
+export zbrentTaxParamNet

@@ -196,3 +196,5 @@ function FnSSParam_lowr(lsspar, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kappa, ald
     [FnSSParam, pgrid, ppregrid, pind]
 
 end
+
+export FnSSParam_lowr

@@ -47,3 +47,5 @@ function golden(ax, bx, cx, tol, func)
     end
     xmin
 end
+
+export golden

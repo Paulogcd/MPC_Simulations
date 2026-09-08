@@ -26,3 +26,5 @@ end
 
 display("rtnewt: exceed maximum iterations")
 end
+
+export rtnewtGrossInc

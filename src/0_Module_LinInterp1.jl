@@ -31,3 +31,5 @@ function LinInterp1(x, y, xi)
     yi
 
 end
+
+export LinInterp1

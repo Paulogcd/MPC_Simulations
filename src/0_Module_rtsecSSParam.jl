@@ -50,3 +50,5 @@ function rtsecSSParam(lx1, lx2, facc, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kapp
     [rtsec, pgrid, ppregrid, pind]
 
 end
+
+export rtsecSSParam

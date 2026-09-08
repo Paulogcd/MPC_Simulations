@@ -49,3 +49,5 @@ function FnGridKEntrep(lx, SDAlpha, ngpal)
 
     [FnGridAlpha, aldist, algrid]
 end
+
+export FnGridKEntrep
