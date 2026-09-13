@@ -3,20 +3,20 @@ Takes in xi, and finds two points in either side of in x and returns the indices
 """
 function FindLinProb1(x, xi)
 
-    y=zeros(2)
-    p=zeros(2)
-    n=length(x)
-    if minimum(x)>=xi
+    y = zeros(2)
+    p = zeros(2)
+    n = length(x)
+    if minimum(x) >= xi
         v, LocL = findmax(x)
     else
         v, LocL = findmax(x[xi .> x])
     end
 
-    if xi<=x[1]
-        y[1]=1
-        y[2]=2
-        p[1]=1.0
-        p[2]=0.0
+    if xi <= x[1]
+        y[1] = 1
+        y[2] = 2
+        p[1] = 1.0
+        p[2] = 0.0
     elseif LocL>=n
         LocL = n-1
         y[1] = n-1
