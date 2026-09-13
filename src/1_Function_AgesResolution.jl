@@ -1,3 +1,6 @@
+using Base.Threads
+# It would be usefule to integrate something to calibrate the number of cores used.
+
 export AgesResolution
 
 """
