@@ -3,7 +3,7 @@ export CashInHands
 """
 Replace the long in-book function and produces the Cash-in-hands grids.
 """
-function CashInHands(;Twork, Tret, ngpa, ngpz, ngpe, ngpal, ngpp, ygrid, agrid, agridret, cfloor, Rnetsave, Rnetdebt, pind)
+function CashInHands(;Twork, Tret, ngpa, ngpz, ngpe, ngpal, ngpp, ygrid, agrid, agridret, cfloor, Rnetsave, Rnetdebt, pind, pgrid)
 
     tran = zeros(Twork, ngpa, ngpz, ngpe, ngpal, 2);
     xgrid = zeros(Twork, ngpa, ngpz, ngpe, ngpal, 2);
