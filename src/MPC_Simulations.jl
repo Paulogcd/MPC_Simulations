@@ -28,6 +28,9 @@ module MPC_Simulations
     include("./0_Module_FnTaxParamNetMA0NuUI.jl")
     include("./0_Module_FnTaxParamNetMA0NuUI2.jl")
 
+    # Functionized scripts
+    include("./1_Function_CashInHands.jl")
+
     @info("Utils loaded.")
     
 end
