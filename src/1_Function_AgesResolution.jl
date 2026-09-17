@@ -7,7 +7,7 @@ export AgesResolution
 Solve for each age.
 Equivalent of the former Module_DecisionsSImulate30Nucbar_Parallel.jl script.
 """
-function AgesResolution(;Ttot, xgridret, ngpp, qprefa, qprefb, cbar, gam, annprem, pgrid, Display)
+function AgesResolution(;Ttot, xgridret, ngpp, qprefa, qprefb, cbar, gam, annprem, pgrid, Display, Tret)
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #! Start with last period; eat everything  !!
