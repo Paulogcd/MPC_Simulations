@@ -137,7 +137,7 @@ function AgesResolution(;Ttot, xgridret, ngpp, qprefa, qprefb, cbar, gam, annpre
             ial = 1
             while ial <= ngpal
                 @threads for iz in 1:ngpz
-                    @threads for ie in 1:ngpe
+                    for ie in 1:ngpe
                         im=1
                         while im <= ngpm
                             ip = round(Int, pind[im, iz, ie, ial])
@@ -216,7 +216,8 @@ function AgesResolution(;Ttot, xgridret, ngpp, qprefa, qprefb, cbar, gam, annpre
                                         imnext, lpmnext=FindLinProb1(mgrid[it+1, :], lnextm)
                                         imnext = round.(Int, imnext)
                                         p=pzgrid[it, iz2]
-                                        emuc[:] = emuc[:] + (lpmnext[1]*muc[it+1, :, imnext[1], iz2, ie2, ial, 1]*ztrans[it, iz, iz2]*edist[it+1, ie2] + lpmnext[2]*muc[it+1, :, imnext[2], iz2, ie2, ial, 1]*ztrans[it, iz, iz2]*edist[it+1, ie2])*(1-p) + (lpmnext[1]*muc[it+1, :, imnext[1], iz2, ie2, ial, 2]*ztrans[it, iz, iz2]*edist[it+1, ie2] + lpmnext[2]*muc[it+1, :, imnext[2], iz2, ie2, ial, 2]*ztrans[it, iz, iz2]*edist[it+1, ie2])*(p);
+                                        # emuc[:] = emuc[:] + (lpmnext[1]*muc[it+1, :, imnext[1], iz2, ie2, ial, 1]*ztrans[it, iz, iz2]*edist[it+1, ie2] + lpmnext[2]*muc[it+1, :, imnext[2], iz2, ie2, ial, 1]*ztrans[it, iz, iz2]*edist[it+1, ie2])*(1-p) + (lpmnext[1]*muc[it+1, :, imnext[1], iz2, ie2, ial, 2]*ztrans[it, iz, iz2]*edist[it+1, ie2] + lpmnext[2]*muc[it+1, :, imnext[2], iz2, ie2, ial, 2]*ztrans[it, iz, iz2]*edist[it+1, ie2])*(p);
+                                        emuc[:] .+= (lpmnext[1]*muc[it+1, :, imnext[1], iz2, ie2, ial, 1]*ztrans[it, iz, iz2]*edist[it+1, ie2] + lpmnext[2]*muc[it+1, :, imnext[2], iz2, ie2, ial, 1]*ztrans[it, iz, iz2]*edist[it+1, ie2])*(1-p) + (lpmnext[1]*muc[it+1, :, imnext[1], iz2, ie2, ial, 2]*ztrans[it, iz, iz2]*edist[it+1, ie2] + lpmnext[2]*muc[it+1, :, imnext[2], iz2, ie2, ial, 2]*ztrans[it, iz, iz2]*edist[it+1, ie2])*(p);
                                         ie2=ie2+1
                                     end
                                     iz2=iz2+1
