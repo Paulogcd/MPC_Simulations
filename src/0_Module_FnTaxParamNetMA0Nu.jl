@@ -4,7 +4,7 @@ using Distributions
 using Random
 
 """
-Documentation missing
+Missing documentation
 """
 function FnTaxParamNetMA0Nu(GrossIncome, Twork, ngpz, ngpe, ngpal, kappa, aldist, algrid, edist, egrid, zdist, zgrid, btax, ptax, pentax, popsize, theta, targetTaxToLabinc, Display)
 

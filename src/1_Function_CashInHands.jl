@@ -1,7 +1,7 @@
 export CashInHands
 
 """
-Replace the long in-book function and produces the Cash-in-hands grids.
+Replace the long in-line function and produces the Cash-in-hands grids.
 """
 function CashInHands(;Twork, Tret, ngpa, ngpz, ngpe, ngpal, ngpp, ygrid, agrid, agridret, cfloor, Rnetsave, Rnetdebt, pind, pgrid)
 

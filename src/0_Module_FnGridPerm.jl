@@ -4,7 +4,7 @@ using Distributions
 using Random
 
 """ 
-Missing documentation.
+Missing documentation
 """
 function FnGridPerm(lx, EPerm1, EPerm2, RobustSDPerm1, RobustSDPerm2, pPerm1, Twork, varz, ngpz, rho, SDz0)
 
