@@ -370,9 +370,15 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
 
     # Mean values for all simulations
     result = Dict(
+        :csim       => csim,
         :csim_mean  => csim_mean,
+        
+        :csimB      => csimB,
         :csimB_mean => csimB_mean,
+        
+        :csimT      => csimT,
         :csimT_mean => csimT_mean,
+        
         :asim_mean  => asim_mean,
         :ysim_mean  => ysim_mean,
         :ysimB_mean => ysimB_mean
