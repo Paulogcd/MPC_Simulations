@@ -32,6 +32,7 @@ module MPC_Simulations
     include("./1_Function_CashInHands.jl")
     include("./1_Function_AgesResolution.jl")
     include("./1_Function_Simulations.jl")
+    include("./1_Function_pathCAIncome.jl")
 
     @info("MPC_Simulations loaded.")
     

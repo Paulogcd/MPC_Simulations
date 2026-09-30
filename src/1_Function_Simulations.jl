@@ -1,63 +1,62 @@
+using StatsBase
+
 """
 Missing documentation.
 """
-function Simulations(
-    nsim, Ttot, rng, ngpal, aldist, Twork, edist)
+function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
 
     nnsim = zeros(nsim, Ttot);
     agesim = zeros(nsim, Ttot);
     
     # initial earnings
     
-    alsimI[:] = sample(rng, collect(1:ngpal), weights(aldist[:]), nsim);
-    zsimI[:, 1] = sample(rng, collect(1:ngpz), weights(zdist[1, :]), nsim);
-    zsimIB = zeros(Int8, nsim, Twork);
-    esimI[:, 1] = sample(rng, collect(1:ngpe), weights(edist[1, :]), nsim);
-    # alsim = zeros(nsim);
-    zsim = zeros(nsim, Twork);
-    zsimB = zeros(nsim, Twork);
-    esim = zeros(nsim, Twork);
-    # alsim = algrid[alsimI[:]];
-    zsim[:, 1] = zgrid[1, zsimI[:, 1]];
+    alsimI[:] = StatsBase.sample(rng,   collect(1:ngpal), StatsBase.weights(aldist[:]),   nsim);
+    zsimI[:, 1] = StatsBase.sample(rng, collect(1:ngpz),  StatsBase.weights(zdist[1, :]), nsim);
+    esimI[:, 1] = StatsBase.sample(rng, collect(1:ngpe),    StatsBase.weights(edist[1, :]), nsim);
+    
+    zsim    = zeros(nsim, Twork);
+    zsimB   = zeros(nsim, Twork);
+    esim    = zeros(nsim, Twork);
+    
     esim[:, 1] = egrid[1, esimI[:, 1]];
+    zsim[:, 1] = zgrid[1, zsimI[:, 1]];
     
-    kappasim = zeros(nsim, Twork);
-    kappasim[:, :] = ones(nsim, 1) * kappa';
+    kappasim        = zeros(nsim, Twork);
+    kappasim[:, :]  = ones(nsim, 1) * kappa';
     
-    msimI = zeros(nsim, Twork);
-    msimIB = zeros(nsim, Twork);
-    ysim = zeros(nsim, Ttot);
-    ysimB = zeros(nsim, Ttot);
-    asimI = zeros(nsim, Ttot);
-    asim = zeros(nsim, Ttot);
-    asimB = zeros(nsim, Ttot);
-    msim = zeros(nsim, Twork);
-    msimB = zeros(nsim, Twork);
+    msimI   = zeros(nsim, Twork);
+    msimIB  = zeros(nsim, Twork);
+    ysim    = zeros(nsim, Ttot);
+    ysimB   = zeros(nsim, Ttot);
+    asimI   = zeros(nsim, Ttot);
+    asim    = zeros(nsim, Ttot);
+    asimB   = zeros(nsim, Ttot);
+    msim    = zeros(nsim, Twork);
+    msimB   = zeros(nsim, Twork);
     
-    trsim = zeros(nsim, Ttot);
-    trsimB = zeros(nsim, Ttot);
-    csim = zeros(nsim, Ttot);
-    csimB = zeros(nsim, Ttot);
-    csimT = zeros(nsim, Ttot);
-    xsim = zeros(nsim, Ttot);
-    xsimB = zeros(nsim, Ttot);
+    trsim   = zeros(nsim, Ttot);
+    trsimB  = zeros(nsim, Ttot);
+    csim    = zeros(nsim, Ttot);
+    csimB   = zeros(nsim, Ttot);
+    csimT   = zeros(nsim, Ttot);
+    xsim    = zeros(nsim, Ttot);
+    xsimB   = zeros(nsim, Ttot);
     
-    ypresimB = ypresim;
-    yavsimB = yavsim;
+    ypresimB  = ypresim;
+    yavsimB     = yavsim;
     
     Tbreak = zeros(nsim, Ttot);
     
-    nu=0;
+    nu = 0;
     
     # measurement error
     
     cmesim = randn!(rng, zeros(nsim, Ttot)) .* 2500;
     ymesim = randn!(rng, zeros(nsim, Ttot)) .* 2500;
     
-    
-    it_sim =1
-    inn_sim=1
-    while inn_sim<=nsim
+    it_sim = 1
+    inn_sim = 1
+    while inn_sim <= nsim
         Tbreak[inn_sim, it_sim]=rand(rng, DiscreteUniform(2, Twork-6), 1)[1];
     
         # initial income
@@ -67,7 +66,7 @@ function Simulations(
         ypresim[inn_sim, 1] = ypregrid[1, zsimI[inn_sim, 1], esimI[inn_sim, 1], alsimI[inn_sim], nu+1]
         yavsim[inn_sim, 1] = min(ypresim[inn_sim, 1], pencap)
         lim, lp = FindLinProb1(mgrid[1, :], yavsim[inn_sim, 1])
-        itemp = sample(rng, collect(1:2), weights(lp), 1)
+        itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)
         msimI[inn_sim, 1] = lim[itemp][1, 1]
         msim[inn_sim, 1] = mgrid[1, round(Int, msimI[inn_sim, 1])]
         ysim[inn_sim, 1] = ygrid[1, zsimI[inn_sim, 1], esimI[inn_sim, 1], alsimI[inn_sim], nu+1]
@@ -75,7 +74,8 @@ function Simulations(
         # initial assets
     
         if RobustInitWealth==0
-            itemp=sample(rng, collect(1:75), weights(initwealthdist[:, 2]), 1)
+            
+            itemp = StatsBase.sample(rng, collect(1:75), StatsBase.weights(initwealthdist[:, 2]), 1)
             asimI[inn_sim, 1] = itemp[1]
             asim[inn_sim, 1] = initwealthdist[itemp, 1][1]*ygrid[1, round(Int, (ngpz-1)/2-2), round(Int, (ngpe-1)/2-1), round(Int, (ngpal-1)/2-1)]
             asim[inn_sim, 1] = max(asim[inn_sim, 1], agrid[1, 1])
@@ -84,13 +84,12 @@ function Simulations(
             asim[:, 1] = 0.01*ones(nsim, 1); #0*ones(nsim,1); # -0.73*10030*ones(nsim,1) #-5*14030*ones(nsim,1)
         else
     
-            itemp=sample(rng, collect(1:75), weights(initwealthdist[:, 2]), 1)
+            itemp=StatsBase.sample(rng, collect(1:75), StatsBase.weights(initwealthdist[:, 2]), 1)
             asimI[inn_sim, 1] = itemp[1]
             asim[inn_sim, 1] = initwealthdist[itemp, 1][1]*ygrid[1, ngpz-2, 6, 2]
             asim[inn_sim, 1] = max(asim[inn_sim, 1], agrid[1, 1])
     
         end;
-    
     
         nnsim[inn_sim, it_sim] = inn_sim;
         agesim[inn_sim, it_sim] = 1;
@@ -137,8 +136,8 @@ function Simulations(
             Tbreak[inn_sim, it_sim]=Tbreak[inn_sim, 1];
             nnsim[inn_sim, it_sim] = inn_sim;
             agesim[inn_sim, it_sim] = it;
-            zsimI[inn_sim, it_sim] = sample(rng, collect(1:ngpz), weights(ztrans[it-1, zsimI[inn_sim, it-1], :]), 1)[1, 1]
-            esimI[inn_sim, it_sim] = sample(rng, collect(1:ngpe), weights(edist[it_sim, :]), 1)[1, 1]
+            zsimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpz), StatsBase.weights(ztrans[it-1, zsimI[inn_sim, it-1], :]), 1)[1, 1]
+            esimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpe), StatsBase.weights(edist[it_sim, :]), 1)[1, 1]
             nudist = Binomial(1, pzgrid[it_sim, zsimI[inn_sim, it_sim]])
             nu = rand(rng, nudist, 1)[1]
             zsim[inn_sim, it_sim] = zgrid[it_sim, zsimI[inn_sim, it_sim]]
@@ -147,7 +146,7 @@ function Simulations(
             ypresim[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
             yavsim[inn_sim, it_sim] = ((it-1)*msim[inn_sim, it-1] + min(ypresim[inn_sim, it_sim], pencap))/real(it)
             lim, lp = FindLinProb1(mgrid[it_sim, :], yavsim[inn_sim, it_sim])
-            itemp = sample(rng, collect(1:2), weights(lp), 1)[1, 1]
+            itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)[1, 1]
             msimI[inn_sim, it_sim] = lim[itemp]
             msim[inn_sim, it_sim] = mgrid[it_sim, round(Int, msimI[inn_sim, it_sim])]
             if it_sim <Twork
@@ -201,8 +200,8 @@ function Simulations(
             Tbreak[inn_sim, it_sim]=Tbreak[inn_sim, 1];
             nnsim[inn_sim, it_sim] = inn_sim;
             agesim[inn_sim, it_sim] = it;
-            zsimI[inn_sim, it_sim] = sample(rng, collect(1:ngpz), weights(ztrans[it-1, zsimI[inn_sim, it-1], :]), 1)[1, 1]
-            esimI[inn_sim, it_sim] = sample(rng, collect(1:ngpe), weights(edist[it_sim, :]), 1)[1, 1]
+            zsimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpz), StatsBase.weights(ztrans[it-1, zsimI[inn_sim, it-1], :]), 1)[1, 1]
+            esimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpe), StatsBase.weights(edist[it_sim, :]), 1)[1, 1]
             nudist = Binomial(1, pzgrid[it_sim, zsimI[inn_sim, it_sim]])
             nu = rand(rng, nudist, 1)[1]
             zsim[inn_sim, it_sim] = zgrid[it_sim, zsimI[inn_sim, it_sim]]
@@ -211,7 +210,7 @@ function Simulations(
             ypresim[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
             yavsim[inn_sim, it_sim] = ((it-1)*msim[inn_sim, it-1] + min(ypresim[inn_sim, it_sim], pencap))/real(it)
             lim, lp = FindLinProb1(mgrid[it_sim, :], yavsim[inn_sim, it_sim])
-            itemp = sample(rng, collect(1:2), weights(lp), 1)[1, 1]
+            itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)[1, 1]
             msimI[inn_sim, it_sim] = lim[itemp]
             msim[inn_sim, it_sim] = mgrid[it_sim, round(Int, msimI[inn_sim, it_sim])]
             if it_sim <Twork
@@ -256,7 +255,7 @@ function Simulations(
             ypresimB[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
             yavsimB[inn_sim, it_sim] = ((it-1)*msim[inn_sim, it-1] + min(ypresimB[inn_sim, it_sim], pencap))/real(it)
             lim, lp = FindLinProb1(mgrid[it_sim, :], yavsimB[inn_sim, it_sim])
-            itemp = sample(rng, collect(1:2), weights(lp), 1)[1, 1]
+            itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)[1, 1]
             msimIB[inn_sim, it_sim] = lim[itemp]
             msimB[inn_sim, it_sim] = mgrid[it_sim, round(Int, msimI[inn_sim, it_sim])]
             if it_sim <Twork
@@ -368,5 +367,18 @@ function Simulations(
         print(maximum(asim[:, age]));
         print(" \n")
     end
+
+    # Mean values for all simulations
+    result = Dict(
+        :csim_mean  => csim_mean,
+        :csimB_mean => csimB_mean,
+        :csimT_mean => csimT_mean,
+        :asim_mean  => asim_mean,
+        :ysim_mean  => ysim_mean,
+        :ysimB_mean => ysimB_mean
+    )
+
+    return result
+    
 end;
-export Simulations;
+export Simulations
