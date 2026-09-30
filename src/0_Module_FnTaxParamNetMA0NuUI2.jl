@@ -4,7 +4,64 @@ using Distributions
 using Random
 
 """
-Documentation Missing
+    FnTaxParamNetMA0NuUI2(GrossIncome, Twork, ngpz, ngpe, ngpal, kappa,
+        aldist, algrid, edist, egrid, zdist, zgrid,
+        stax, ptax, btax, popsize, theta,
+        targetTaxToLabinc, Display, UI,
+        g0, g1, g2, a, b, c, d)
+
+Build the grid of annual earnings implied by the GKOS (2021) earnings process with a binary nonemployment shock and UI benefits, before and after Gouveia--Strauss taxes, and compute average earnings by age, total labor income and the tax-calibration residual. All arguments are positional.
+
+# Inputs
+
+## Switches and dimensions
+
+- `GrossIncome::Int`: if ``1``, the returned `ygrid` holds pre-tax income; otherwise it holds after-tax income.
+- `Twork::Int`: number of working-life periods ``T_{\\text{work}}``.
+- `ngpz::Int`: number of grid points for the persistent component ``z``.
+- `ngpe::Int`: number of grid points for the transitory component ``\\varepsilon``.
+- `ngpal::Int`: number of grid points for the fixed effect ``\\alpha``.
+- `Display::Int`: if ``1``, print tax revenue as a percentage of pre-tax labor income.
+
+## Component grids (from the component modules)
+
+- `algrid::Vector` (length ``ngpal``): fixed-effect grid ``\\alpha_i``.
+- `aldist::Vector` (length ``ngpal``): probability weights ``\\pi^\\alpha(i)``.
+- `zgrid::Matrix` (``Twork`` ``\\times`` ``ngpz``): persistent-component grid ``z_``t,j`` by age.
+- `zdist::Matrix` (``Twork`` ``\\times`` ``ngpz``): weights ``\\pi^z_t(j)`` by age.
+- `egrid::Matrix` (``Twork`` ``\\times`` ``ngpe``): transitory-component grid ``\\varepsilon_{t,k}`` by age.
+- `edist::Matrix` (``Twork`` ``\\times`` ``ngpe``): weights ``\\pi^\\varepsilon_{t(k)}`` by age.
+- `popsize::Vector` (length at least ``Twork``): population weight of each age.
+
+
+## Earnings-process parameters (taken from (Guvenen et al., 2021) and readjusted to account for age rescaling)
+- `g0`, `g1`, `g2`: coefficients of the life-cycle
+- `a`, `b`, `c`, `d`: coefficients of the nonemployment
+- `UI::Real`: unemployment-insurance benefit ``b^{UI}``, in the same units as earnings.
+
+## Tax parameters
+
+- `btax`, `ptax`, `stax`: Gouveia--Strauss parameters ``\\tau_b``, ``\\tau_p``, ``\\tau_s``.
+- `targetTaxToLabinc::Real`: target ratio of tax revenue to pre-tax labor income.
+
+## Unused
+
+- `kappa`, `theta`: accepted but not used in the body of the function.
+
+
+# Outputs
+
+A `{Vector{Any}}` of eight elements, in this order:
+
+- `FnTaxParamNet::Float64`: tax-calibration residual.
+- `ypregrid::Array{Float64}`: pre-tax income grid,
+- `ygrid::Array{Float64}`: income grid for the household problem
+- `pzgrid::Matrix{Float64}`: nonemployment probabilities ``p_\\nu(t, z_{t,j})``,
+- `avearnspre::Vector{Float64}`: average pre-tax earnings by age, equation~\\eqref``eq:avpre``.
+- `avearnspost::Vector{Float64}`: average after-tax income by age, equation~\\eqref``eq:avpost``.
+- `totlabincpre::Float64`: total pre-tax labor income ``\\text{LI^{\\text{pre}}``.
+- `totlabincpost::Float64`: total after-tax labor income ``\\text{LI^{\\text{post}}}``.
+
 """
 function FnTaxParamNetMA0NuUI2(GrossIncome, Twork, ngpz, ngpe, ngpal, kappa, aldist, algrid, edist, egrid, zdist, zgrid, stax, ptax, btax, popsize, theta, targetTaxToLabinc, Display, UI, g0, g1, g2, a, b, c, d)
 

@@ -3,8 +3,8 @@ export FnTaxParamNetMA0NuUI
 using Distributions 
 using Random
 
-""""
-Documentation missing.
+"""
+Missing documentation
 """
 function FnTaxParamNetMA0NuUI(GrossIncome,Twork,ngpz,ngpe,ngpal,kappa,aldist,algrid,edist,egrid,zdist,zgrid,btax,ptax,pentax,popsize,theta,targetTaxToLabinc,Display,UI)
     
