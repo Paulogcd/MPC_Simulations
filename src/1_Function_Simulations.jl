@@ -378,9 +378,14 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
         
         :csimT      => csimT,
         :csimT_mean => csimT_mean,
-        
+
+        :asim       => asim,
         :asim_mean  => asim_mean,
+        
+        :ysim       => ysim,
         :ysim_mean  => ysim_mean,
+
+        :ysimB      => ysimB,
         :ysimB_mean => ysimB_mean
     )
 
