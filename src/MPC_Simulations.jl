@@ -33,6 +33,6 @@ module MPC_Simulations
     include("./1_Function_AgesResolution.jl")
     include("./1_Function_Simulations.jl")
 
-    @info("Utils loaded.")
+    @info("MPC_Simulations loaded.")
     
 end
