@@ -387,6 +387,9 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
 
         :ysimB      => ysimB,
         :ysimB_mean => ysimB_mean
+        
+        :zsim      => zsim,
+        :zsim_mean => zsim
     )
 
     return result
