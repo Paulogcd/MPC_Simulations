@@ -31,6 +31,7 @@ module MPC_Simulations
     # Functionized scripts
     include("./1_Function_CashInHands.jl")
     include("./1_Function_AgesResolution.jl")
+    include("./1_Function_Simulations.jl")
 
     @info("Utils loaded.")
     
