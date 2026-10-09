@@ -56,7 +56,8 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
     
     it_sim = 1
     inn_sim = 1
-    while inn_sim <= nsim
+    # while inn_sim <= nsim
+    Threads.@threads for inn_sim in 1:nsim
         Tbreak[inn_sim, it_sim]=rand(rng, DiscreteUniform(2, Twork-6), 1)[1];
     
         # initial income
@@ -117,7 +118,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
             display("bad consumption")
         end
     
-        inn_sim=inn_sim+1
+        # inn_sim=inn_sim+1
     
     end;
     

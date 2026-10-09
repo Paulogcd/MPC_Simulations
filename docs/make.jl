@@ -8,7 +8,6 @@ using MPC_Simulations
 
 using PlutoSliderServer
 # Baseline notebook:
-pwd() # For debugging
 baseline_notebook_path = joinpath(@__DIR__, "notebooks", "baseline_notebook.jl")
 PlutoSliderServer.export_notebook(baseline_notebook_path; Export_output_dir = "src/")
 
