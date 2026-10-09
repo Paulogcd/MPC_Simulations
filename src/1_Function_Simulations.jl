@@ -5,14 +5,14 @@ Missing documentation.
 """
 function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
 
-    nnsim = zeros(nsim, Ttot);
-    agesim = zeros(nsim, Ttot);
+    nnsim   = zeros(nsim, Ttot);
+    agesim  = zeros(nsim, Ttot);
     
     # initial earnings
     
-    alsimI[:] = StatsBase.sample(rng,   collect(1:ngpal), StatsBase.weights(aldist[:]),   nsim);
-    zsimI[:, 1] = StatsBase.sample(rng, collect(1:ngpz),  StatsBase.weights(zdist[1, :]), nsim);
-    esimI[:, 1] = StatsBase.sample(rng, collect(1:ngpe),    StatsBase.weights(edist[1, :]), nsim);
+    alsimI[:]   = StatsBase.sample(rng,     collect(1:ngpal),   StatsBase.weights(aldist[:]),   nsim);
+    zsimI[:, 1] = StatsBase.sample(rng,     collect(1:ngpz),    StatsBase.weights(zdist[1, :]), nsim);
+    esimI[:, 1] = StatsBase.sample(rng,     collect(1:ngpe),    StatsBase.weights(edist[1, :]), nsim);
     
     zsim    = zeros(nsim, Twork);
     zsimB   = zeros(nsim, Twork);
@@ -42,35 +42,38 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
     xsim    = zeros(nsim, Ttot);
     xsimB   = zeros(nsim, Ttot);
     
-    ypresimB  = ypresim;
+    ypresimB    = ypresim;
     yavsimB     = yavsim;
     
     Tbreak = zeros(nsim, Ttot);
     
-    nu = 0;
+    # nu = 0;
+    nu = zeros(nsim);
     
     # measurement error
     
     cmesim = randn!(rng, zeros(nsim, Ttot)) .* 2500;
     ymesim = randn!(rng, zeros(nsim, Ttot)) .* 2500;
     
-    it_sim = 1
-    inn_sim = 1
+    # it_sim = 1
+    # inn_sim = 1
     # while inn_sim <= nsim
     Threads.@threads for inn_sim in 1:nsim
-        Tbreak[inn_sim, it_sim]=rand(rng, DiscreteUniform(2, Twork-6), 1)[1];
+
+        Tbreak[inn_sim, it_sim] = rand(rng, DiscreteUniform(2, Twork-6), 1)[1];
     
         # initial income
     
-        nudist = Binomial(1, pzgrid[1, zsimI[inn_sim, 1]])
-        nu = rand(rng, nudist, 1)[1]
-        ypresim[inn_sim, 1] = ypregrid[1, zsimI[inn_sim, 1], esimI[inn_sim, 1], alsimI[inn_sim], nu+1]
-        yavsim[inn_sim, 1] = min(ypresim[inn_sim, 1], pencap)
-        lim, lp = FindLinProb1(mgrid[1, :], yavsim[inn_sim, 1])
-        itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)
-        msimI[inn_sim, 1] = lim[itemp][1, 1]
-        msim[inn_sim, 1] = mgrid[1, round(Int, msimI[inn_sim, 1])]
-        ysim[inn_sim, 1] = ygrid[1, zsimI[inn_sim, 1], esimI[inn_sim, 1], alsimI[inn_sim], nu+1]
+        nudist  = Binomial(1, pzgrid[1, zsimI[inn_sim, 1]])
+        nu_sim = nu[inn_sim] = rand(rng, nudist, 1)[1]
+
+        ypresim[inn_sim, 1]     = ypregrid[1, zsimI[inn_sim, 1], esimI[inn_sim, 1], alsimI[inn_sim], nu_sim+1]
+        yavsim[inn_sim, 1]      = min(ypresim[inn_sim, 1], pencap)
+        lim, lp                 = FindLinProb1(mgrid[1, :], yavsim[inn_sim, 1])
+        itemp               = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)
+        msimI[inn_sim, 1]   = lim[itemp][1, 1]
+        msim[inn_sim, 1]    = mgrid[1, round(Int, msimI[inn_sim, 1])]
+        ysim[inn_sim, 1]    = ygrid[1, zsimI[inn_sim, 1], esimI[inn_sim, 1], alsimI[inn_sim], nu_sim+1]
     
         # initial assets
     
@@ -99,7 +102,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
         else
             trsim[inn_sim, it_sim] = max(cfloor - (Rnetsave*asim[inn_sim, it_sim] + ysim[inn_sim, it_sim] - agrid[it_sim+1, 1]), 0.0)
         end
-        csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asim[inn_sim, it_sim]+trsim[inn_sim, it_sim])
+        csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asim[inn_sim, it_sim]+trsim[inn_sim, it_sim])
         csimT[inn_sim, it_sim] = (R-1) .* (asim[inn_sim, it_sim])+ysim[inn_sim, it_sim];
         if trsim[inn_sim, it_sim]>0.0
             csim[inn_sim, it_sim] = min(cfloor, csim[inn_sim, it_sim])
@@ -127,24 +130,28 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
     psimI = zeros(nsim);
     psimIB=psimI;
     
-    inn_sim=1
-    while inn_sim<=nsim
+    # inn_sim=1
+    # while inn_sim<=nsim
+    Threads.@threads for inn_sim in 1:nsim
     
-        it_sim =2;
+        # it_sim = 2;
     
-        while it_sim <=Tbreak[inn_sim, 1]-1
+        # while it_sim <= Tbreak[inn_sim, 1]-1
+        for it_sim in Int.(2:(Tbreak[inn_sim, 1]-1))
     
             Tbreak[inn_sim, it_sim]=Tbreak[inn_sim, 1];
             nnsim[inn_sim, it_sim] = inn_sim;
             agesim[inn_sim, it_sim] = it;
             zsimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpz), StatsBase.weights(ztrans[it-1, zsimI[inn_sim, it-1], :]), 1)[1, 1]
             esimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpe), StatsBase.weights(edist[it_sim, :]), 1)[1, 1]
+            
             nudist = Binomial(1, pzgrid[it_sim, zsimI[inn_sim, it_sim]])
-            nu = rand(rng, nudist, 1)[1]
+            nu_sim = nu[inn_sim] = rand(rng, nudist, 1)[1]
+            
             zsim[inn_sim, it_sim] = zgrid[it_sim, zsimI[inn_sim, it_sim]]
             esim[inn_sim, it_sim] = egrid[it_sim, esimI[inn_sim, it_sim]]
-            ysim[inn_sim, it_sim] = ygrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
-            ypresim[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
+            ysim[inn_sim, it_sim] = ygrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1]
+            ypresim[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1]
             yavsim[inn_sim, it_sim] = ((it-1)*msim[inn_sim, it-1] + min(ypresim[inn_sim, it_sim], pencap))/real(it)
             lim, lp = FindLinProb1(mgrid[it_sim, :], yavsim[inn_sim, it_sim])
             itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)[1, 1]
@@ -156,7 +163,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 else
                     trsim[inn_sim, it_sim] = max(cfloor - (Rnetsave*asim[inn_sim, it_sim] + ysim[inn_sim, it_sim] - agrid[it_sim+1, 1]), 0.0)
                 end
-                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asim[inn_sim, it_sim])
+                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asim[inn_sim, it_sim])
                 csimT[inn_sim, it_sim] = (R-1) .* (asim[inn_sim, it_sim])+ysim[inn_sim, it_sim];
             elseif it_sim ==Twork
                 psimI[inn_sim] = pind[round(Int, msimI[inn_sim, Twork]), zsimI[inn_sim, Twork], esimI[inn_sim, Twork], alsimI[inn_sim]]
@@ -165,7 +172,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 else
                     trsim[inn_sim, it_sim] = max(cfloor - (Rnetsave*asim[inn_sim, it_sim] + ysim[inn_sim, it_sim] - agridret[1, 1, round(Int, psimI[inn_sim])]), 0.0)
                 end
-                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asim[inn_sim, it_sim])
+                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asim[inn_sim, it_sim])
                 csimT[inn_sim, it_sim] = (R-1) .* (asim[inn_sim, it_sim])+ysim[inn_sim, it_sim];
             end
             if asim[inn_sim, it_sim]<0
@@ -191,24 +198,27 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 display("bad consumption")
             end
     
-            it_sim =it_sim+1
+            # it_sim =it_sim+1
         end;
         asimB[:, it_sim]=asim[:, it_sim] .+ 0.5
     
         #edist and ztrans are what generate the trend
-        while it_sim <=Twork
+        # while it_sim <=Twork
+        for it_sim in Int.((Tbreak[inn_sim, 1]-1):Twork)
     
-            Tbreak[inn_sim, it_sim]=Tbreak[inn_sim, 1];
+            Tbreak[inn_sim, it_sim] = Tbreak[inn_sim, 1];
             nnsim[inn_sim, it_sim] = inn_sim;
             agesim[inn_sim, it_sim] = it;
             zsimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpz), StatsBase.weights(ztrans[it-1, zsimI[inn_sim, it-1], :]), 1)[1, 1]
             esimI[inn_sim, it_sim] = StatsBase.sample(rng, collect(1:ngpe), StatsBase.weights(edist[it_sim, :]), 1)[1, 1]
+            
             nudist = Binomial(1, pzgrid[it_sim, zsimI[inn_sim, it_sim]])
-            nu = rand(rng, nudist, 1)[1]
+            nu_sim = nu[inn_sim] = rand(rng, nudist, 1)[1]
+            
             zsim[inn_sim, it_sim] = zgrid[it_sim, zsimI[inn_sim, it_sim]]
             esim[inn_sim, it_sim] = egrid[it_sim, esimI[inn_sim, it_sim]]
-            ysim[inn_sim, it_sim] = ygrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
-            ypresim[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
+            ysim[inn_sim, it_sim] = ygrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1]
+            ypresim[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1]
             yavsim[inn_sim, it_sim] = ((it-1)*msim[inn_sim, it-1] + min(ypresim[inn_sim, it_sim], pencap))/real(it)
             lim, lp = FindLinProb1(mgrid[it_sim, :], yavsim[inn_sim, it_sim])
             itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)[1, 1]
@@ -220,7 +230,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 else
                     trsim[inn_sim, it_sim] = max(cfloor - (Rnetsave*asim[inn_sim, it_sim] + ysim[inn_sim, it_sim] - agrid[it_sim+1, 1]), 0.0)
                 end
-                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asim[inn_sim, it_sim])
+                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asim[inn_sim, it_sim])
                 csimT[inn_sim, it_sim] = (R-1) .* (asim[inn_sim, it_sim])+ysim[inn_sim, it_sim];
             elseif it_sim ==Twork
                 psimI[inn_sim] = pind[round(Int, msimI[inn_sim, Twork]), zsimI[inn_sim, Twork], esimI[inn_sim, Twork], alsimI[inn_sim]]
@@ -229,7 +239,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 else
                     trsim[inn_sim, it_sim] = max(cfloor - (Rnetsave*asim[inn_sim, it_sim] + ysim[inn_sim, it_sim] - agridret[1, 1, round(Int, psimI[inn_sim])]), 0.0)
                 end
-                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asim[inn_sim, it_sim])
+                csim[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimI[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asim[inn_sim, it_sim])
                 csimT[inn_sim, it_sim] = (R-1) .* (asim[inn_sim, it_sim])+ysim[inn_sim, it_sim];
             end
             if asim[inn_sim, it_sim]<0
@@ -252,8 +262,8 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
             end
     
             zsimB[inn_sim, it_sim] = zgrid[it_sim, zsimI[inn_sim, it_sim]]
-            ysimB[inn_sim, it_sim] = ygrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
-            ypresimB[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1]
+            ysimB[inn_sim, it_sim] = ygrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1]
+            ypresimB[inn_sim, it_sim] = ypregrid[it_sim, zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1]
             yavsimB[inn_sim, it_sim] = ((it-1)*msim[inn_sim, it-1] + min(ypresimB[inn_sim, it_sim], pencap))/real(it)
             lim, lp = FindLinProb1(mgrid[it_sim, :], yavsimB[inn_sim, it_sim])
             itemp = StatsBase.sample(rng, collect(1:2), StatsBase.weights(lp), 1)[1, 1]
@@ -265,7 +275,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 else
                     trsimB[inn_sim, it_sim] = max(cfloor - (Rnetsave*asimB[inn_sim, it_sim] + ysimB[inn_sim, it_sim] - agrid[it_sim+1, 1]), 0.0)
                 end
-                csimB[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimIB[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asimB[inn_sim, it_sim])
+                csimB[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimIB[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asimB[inn_sim, it_sim])
             elseif it_sim ==Twork
                 psimIB[inn_sim] = pind[round(Int, msimIB[inn_sim, Twork]), zsimI[inn_sim, Twork], esimI[inn_sim, Twork], alsimI[inn_sim]]
                 if asimB[inn_sim, it_sim]<0
@@ -273,7 +283,7 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 else
                     trsimB[inn_sim, it_sim] = max(cfloor - (Rnetsave*asimB[inn_sim, it_sim] + ysimB[inn_sim, it_sim] - agridret[1, 1, round(Int, psimI[inn_sim])]), 0.0)
                 end
-                csimB[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimIB[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu+1], asimB[inn_sim, it_sim])
+                csimB[inn_sim, it_sim] = LinInterp1(agrid[it_sim, :], con[it_sim, :, round(Int, msimIB[inn_sim, it_sim]), zsimI[inn_sim, it_sim], esimI[inn_sim, it_sim], alsimI[inn_sim], nu_sim+1], asimB[inn_sim, it_sim])
             end
             if asimB[inn_sim, it_sim]<0
                 xsimB[inn_sim, it_sim] = Rnetdebt*asimB[inn_sim, it_sim] + ysimB[inn_sim, it_sim] + trsimB[inn_sim, it_sim]
@@ -298,18 +308,20 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                 display("bad consumption")
             end
     
-            it_sim =it_sim+1
+            # it_sim =it_sim+1
         end
-        inn_sim=inn_sim+1
+        # inn_sim=inn_sim+1
     end
     
     # retirement
     
-    it_sim = 1;
+    # it_sim = 1;
     
-    while it_sim <= Tret
-        inn_sim = 1
-        while inn_sim <= nsim
+    # while it_sim <= Tret
+    for it_sim in 1:Tret
+        # inn_sim = 1
+        # while inn_sim <= nsim
+        for inn_sim in 1:nsim
             nnsim[inn_sim, Twork+it_sim] = inn_sim;
             agesim[inn_sim, Twork+it_sim] = Twork+it;
             ysim[inn_sim, Twork+it_sim] = pgrid[it_sim, round(Int, psimI[inn_sim])];
@@ -335,13 +347,13 @@ function Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, z
                     csim[inn_sim, Twork+it_sim] = xsim[inn_sim, Twork+it_sim] - asim[inn_sim, Twork+it_sim+1]*annprem[it_sim]
                 end
             end
-            inn_sim=inn_sim+1
+            # inn_sim=inn_sim+1
         end
-        it_sim =it_sim+1
+        # it_sim =it_sim+1
     end;
     
-    csim_withme=csim .* exp.(randn!(rng, zeros(nsim, Ttot)) .* 0.5) #.+cmesim;
-    ysim_withme=ysim .* exp.(randn!(rng, zeros(nsim, Ttot)) .* 0.5) #.+ymesim;
+    csim_withme = csim .* exp.(randn!(rng, zeros(nsim, Ttot)) .* 0.5) #.+cmesim;
+    ysim_withme = ysim .* exp.(randn!(rng, zeros(nsim, Ttot)) .* 0.5) #.+ymesim;
     
     alsim = zeros(nsim, Ttot);
     alsim = algrid[alsimI[:]]*ones(Ttot)';
