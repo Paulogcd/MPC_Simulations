@@ -19,31 +19,17 @@ end
 # ╔═╡ 30aec05b-f715-4860-a87c-e361d219d606
 begin 
     using Pkg
-    
-    Pkg.activate(".")
-    
-    # Pkg.add(Pkg.PackageSpec(url = "https://github.com/Paulogcd/MPC_Simulations"))
-    Pkg.develop(Pkg.PackageSpec(path = "../../."))
 
-    using MPC_Simulations 
+    # Activate the notebook's own environment.
+    Pkg.activate(@__DIR__)
+    Pkg.instantiate()
 
-    Pkg.add("PlutoUI")
+    # Use the local package source.
+    Pkg.develop(path = joinpath(@__DIR__, "..", ".."))
+
+    using MPC_Simulations
     using PlutoUI
-    
-    for pkg in [
-        "Distributions",
-        "Roots",
-        "StatsFuns",
-        "Plots",
-        "PlotlyJS",
-        "Colors",
-        "StatsBase",
-        "DataFrames",
-        "IterTools",
-        "Flatten"]
-        Pkg.add(pkg)
-    end
-    
+
     using Distributions
     using Roots
     using StatsFuns
@@ -54,17 +40,14 @@ begin
     using DataFrames
     using IterTools
     using Flatten
-    
+
     using Distributed
     using DelimitedFiles
     using SharedArrays
     using LinearAlgebra
     using Random
-    
     using Dates
     using Base.Threads
-    
-    Pkg.instantiate()      # installs any missing dependencies
 end;
 
 # ╔═╡ 6b16a89b-a71d-45bb-9309-8e34902eb87d
