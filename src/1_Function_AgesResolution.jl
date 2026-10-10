@@ -21,15 +21,13 @@ function AgesResolution(;Ttot, xgridret, ngpp, qprefa, qprefb, cbar, gam, annpre
     conret = zeros(size(xgridret));
     mucret = zeros(size(xgridret));
 
-    ip = 1;
-    while ip <= ngpp
+    Threads.@threads for ip in 1:ngpp
         conret[Tret, :, ip] = xgridret[Tret, :, ip]
         if QuadraticPref == 1
             mucret[Tret, :, ip] = qprefa .* (qprefb .- conret[Tret, :, ip])
         else
             mucret[Tret, :, ip] = (conret[Tret, :, ip] .- cbar) .^ (- gam[Tret]);
         end
-        ip = ip+1
     end;
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

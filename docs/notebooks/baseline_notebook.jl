@@ -145,7 +145,7 @@ begin
 	# GRIDS DIMENSION - STATE VARIABLES
 	ngpal = 4;
 	ngpe = 5;
-	ngpz = 5;
+	ngpz = 10;
 	ngpa = 50;
 	ngpm = 5;
 	ngpp = ngpal * ngpm * ngpz * ngpe;
@@ -265,7 +265,7 @@ begin
     stax = 2.0e-4
     GrossIncome = 0;
     
-    kappa = open("./input/kappasmoothPSID35.txt") do file
+    kappa = open(joinpath(@__DIR__, "input", "kappasmoothPSID35.txt")) do file
         readlines(file)
     end;
     kappa = map(x->parse(Float64, x), kappa);
@@ -280,7 +280,7 @@ begin
     
     # survival probabilities
     
-    surprob = open("./input/surprobsmooth.txt") do file
+    surprob = open(joinpath(@__DIR__, "input", "surprobsmooth.txt")) do file
         readlines(file)
     end;
     surprob = map(x->parse(Float64, x), surprob);
@@ -288,7 +288,7 @@ begin
     # age-specific variances
     
     if AgeSpecificVariances==1
-        varetaage = open("./input/varetaage.txt") do file
+        varetaage = open(joinpath(@__DIR__, "input", "varetaage.txt")) do file
             readlines(file)
         end;
         varetaage = map(x->parse(Float64, x), varetaage);
@@ -325,7 +325,7 @@ begin
     
     # Initial wealth distribution
     
-    initwealthdist = open("./input/initwealthdist.txt") do file
+    initwealthdist = open(joinpath(@__DIR__, "input", "initwealthdist.txt")) do file
         readdlm(file)
     end;
     
