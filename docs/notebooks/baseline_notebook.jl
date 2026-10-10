@@ -22,8 +22,10 @@ begin
     
     Pkg.activate(".")
     
+    # Pkg.add(Pkg.PackageSpec(url = "https://github.com/Paulogcd/MPC_Simulations"))
     Pkg.develop(Pkg.PackageSpec(path = "../../."))
-    using MPC_Simulations
+
+    using MPC_Simulations 
 
     Pkg.add("PlutoUI")
     using PlutoUI
@@ -144,23 +146,44 @@ md"""
 # ╔═╡ 6635a224-3b96-4d61-9961-685174e8904d
 @bind g2    NumberField(default = -0.0016)
 
+# ╔═╡ 667ec400-2d6e-4122-876b-f48892a853ad
+md"""
+### Simulations parameters
+"""
+
+# ╔═╡ f4537385-addd-407e-a002-bd3b5430f51a
+@bind nsim NumberField(default = 1000)
+
+# ╔═╡ 3f35af3d-385a-44cf-9d8c-2d62c4684702
+md""" ### Grid dimensions """
+
+# ╔═╡ 9efcd4f9-9de6-49bc-9351-33a54b70b08b
+begin
+	# GRIDS DIMENSION - STATE VARIABLES
+	ngpal = 4;
+	ngpe = 5;
+	ngpz = 5;
+	ngpa = 50;
+	ngpm = 5;
+	ngpp = ngpal * ngpm * ngpz * ngpe;
+end
+
 # ╔═╡ b7fb3dd3-fbd9-4783-b834-4a6f3eb81c90
 begin
-	RunOnLinux = 1;
-	Display = 0;
-	MatchKYRatio = 0;
-	EquilibriumR = 0;
-	AnnuityMarkets = 1;
-	PreTaxIncome = 0;
-	IntitialWealthDist = 0;
-	QuadraticPref = 0;
-	TaxPensionsGS = 1;
+	RunOnLinux 			= 1;
+	Display 			= 0;
+	MatchKYRatio 		= 0;
+	EquilibriumR 		= 0;
+	AnnuityMarkets 		= 1;
+	PreTaxIncome 		= 0;
+	IntitialWealthDist 	= 0;
+	QuadraticPref 		= 0;
+	TaxPensionsGS 		= 1;
 	AgeSpecificVariances = 0;
-	Pensions = 1;
+	Pensions 			= 1;
 	# GrossIncome = 0;
 	
 	#RANDOM SEED
-	
 	rng = MersenneTwister(1234);
 	
 	#ROBUSTNESS CHECKS: to obtain Tables J1 and J2
@@ -179,15 +202,6 @@ begin
 	UseNetIncKY = 0;
 	UseNetIncToScaleSS = 0;
 	
-	# GRIDS DIMENSION - STATE VARIABLES
-	ngpal = 4;
-	ngpe = 5;
-	ngpz = 10;
-	ngpa = 50;
-    # ngpa = 300;
-	ngpm = 5;
-	ngpp = ngpal * ngpm * ngpz * ngpe;
-	
 	# DEMOGRAPHIC PARAMETERS PARAMETERS
 	
 	Twork = 37;
@@ -205,10 +219,6 @@ begin
 	
 	pexpgrid = 0.18;
 	amax = 300000.0;
-	
-	# SIMULATION PARAMETERS	
-	
-	nsim = 50;
 	
 	# EARNINGS PROCESS 
 	
@@ -268,14 +278,11 @@ md"""
 
 # ╔═╡ 4d83e431-91ea-4bcd-b7ca-4dcf11a5a992
 begin
-
     # Same-cell definition:
     stax = 2.0e-4
     GrossIncome = 0;
     
-    # log experience profile
-    
-    kappa = open("./input/kappasmoothPSID35.txt") do file
+    kappa = open("../input/kappasmoothPSID35.txt") do file
         readlines(file)
     end;
     kappa = map(x->parse(Float64, x), kappa);
@@ -284,13 +291,13 @@ begin
     # demographics profile
     
     bet=ones(Ttot)
-    bet[1:Twork]=beta .* ones(Twork)
-    bet[(Twork+1):Ttot]=beta .* ones(Tret)
+    bet[1:Twork] = beta .* ones(Twork)
+    bet[(Twork+1):Ttot] = beta .* ones(Tret)
     bet[(Twork-11+1):Ttot]=RobustDemographicTrend*beta .* ones(Tret+11)
     
     # survival probabilities
     
-    surprob = open("./input/surprobsmooth.txt") do file
+    surprob = open("../input/surprobsmooth.txt") do file
         readlines(file)
     end;
     surprob = map(x->parse(Float64, x), surprob);
@@ -298,7 +305,7 @@ begin
     # age-specific variances
     
     if AgeSpecificVariances==1
-        varetaage = open("./input/varetaage.txt") do file
+        varetaage = open("../input/varetaage.txt") do file
             readlines(file)
         end;
         varetaage = map(x->parse(Float64, x), varetaage);
@@ -312,37 +319,30 @@ begin
     annprem=zeros(1, Tret);
     unconsurprob[1] = 1.0;
     
-    it=1;
-    while it<=Tret
+    for it in 1:Tret
         if it>1
             unconsurprob[it] = unconsurprob[it-1] * surprob[it-1]
         end
         if AnnuityMarkets == 1
             annprem[it] = surprob[it]
         else
-            ()
             annprem[it] = 1.0
         end
-        global it=it+1
     end;
     
     popsize=zeros(1, Twork+Tret);
     
-    it=1;
-    while it<=Twork
+    for it in 1:Twork
         popsize[it] = 1.0/real(Twork + sum(unconsurprob))
-        global it=it+1
     end;
     
-    it=1;
-    while it<=Tret
+    for it in 1:Tret
         popsize[Twork+it] = unconsurprob[it]/real(Twork + sum(unconsurprob))
-        global it=it+1
     end;
     
     # Initial wealth distribution
     
-    initwealthdist = open("./input/initwealthdist.txt") do file
+    initwealthdist = open("../input/initwealthdist.txt") do file
         readdlm(file)
     end;
     
@@ -373,10 +373,8 @@ begin
     varz = zeros(Twork);
     varz[1] = SDz0^2;
     
-    it=2;
-    while it <= Twork
+    for it in 2:Twork
         varz[it] = (rho^2)*varz[it-1] + Vetavec[it-1]
-        global it=it+1
     end;
     
     lxa = 1.0e-8;
@@ -417,16 +415,13 @@ begin
     ypresim = zeros(nsim, Ttot);
     yavsim = zeros(nsim, Twork);
     
-    inn=1;
-    
-    while inn<=nsim
+    for inn in 1:nsim
         nudist = Binomial(1, pzgrid[1, zsimI[inn, 1]])
         nu = rand(rng, nudist, 1)[1] #nu=1 means unemployment; nu=0 means employment
         #I compute only on employed people=#
         ypresim[inn, 1] = ypregrid[1, zsimI[inn, 1], esimI[inn, 1], alsimI[inn], 1]
         yavsim[inn, 1] = min(ypresim[inn, 1], pencap)
-        it=2
-        while it<=Twork
+        for it in 2:Twork
             zsimI[inn, it]=sample(rng, collect(1:ngpz), weights(ztrans[it-1, zsimI[inn, it-1], :]), 1)[1, 1]
             esimI[inn, it]=sample(rng, collect(1:ngpe), weights(edist[it, :]), 1)[1, 1]
             nudist = Binomial(1, pzgrid[it, zsimI[inn, it]])
@@ -434,18 +429,14 @@ begin
             #I compute only on employed people=#
             ypresim[inn, it] = ypregrid[it, zsimI[inn, it], esimI[inn, it], alsimI[inn], 1]
             yavsim[inn, it] = ((it-1)*yavsim[inn, it-1] + min(ypresim[inn, it], pencap))/real(it)
-            it=it+1
         end
-        global inn=inn+1
     end;
     
     # equally spaced between 5th perc and median(), and median and 95th perc
     
     mgrid = zeros(Twork, ngpm);
     
-    it=1;
-    
-    while it<=Twork
+    for it in 1:Twork
         lyavsim = yavsim[:, it]
         lyavsim=sort(lyavsim)
         lperc5 = lyavsim[round(Int, nsim*0.05)]
@@ -459,17 +450,12 @@ begin
         lwidth_1 = (mgrid[it, round(Int, (1+ngpm)/2)] - mgrid[it, 1])/real((ngpm-1)/2)
         lwidth2 = (mgrid[it, ngpm] - mgrid[it, round(Int, (1+ngpm)/2)])/real((ngpm-1)/2)
     
-        im=2
-        while im<=(ngpm-1)/2
+        for im in Int.(2:((ngpm-1)/2))
             mgrid[it, im] = mgrid[it, im-1] + lwidth_1
-            im=im+1
         end
-        im=round(Int, (ngpm+1)/2 + 1)
-        while im<=ngpm-1
+        for im in (round(Int, (ngpm+1)/2 + 1)):(ngpm-1)
             mgrid[it, im] = mgrid[it, im-1] + lwidth2
-            im=im+1
         end
-        global it=it+1
     end;
     
     # Pensions
@@ -489,24 +475,15 @@ begin
     
     nblret = zeros(Tret, ngpp);
     
-    ip=1;
-    
-    while ip<=ngpp
+    for ip in 1:ngpp
         nblret[Tret, ip] = -pgrid[Tret, ip]/Rnetdebt + 0.0001;
-        global ip=ip+1
     end;
     
     # Retired
-    
-    it=Tret-1;
-    
-    while it>=1
-        ip=1
-        while ip<=ngpp
+    for it in Int.((Tret-1):-1:1)
+        for ip in 1:ngpp
             nblret[it, ip] = annprem[it]*nblret[it+1, ip]/Rnetdebt-pgrid[it, ip]/Rnetdebt + 0.0001;
-            ip=ip+1
         end
-        global it=it-1
     end;
     
     # Last Working Period
@@ -520,49 +497,36 @@ begin
     
     it = Twork-1;
     
-    while it>=1
+    for it in (Twork-1):-1:1
         for ial=1:ngpal
             nbl[it, ial] = nbl[it+1, ial]/Rnetdebt - ygrid[it, 1, 1, ial, 2]/Rnetdebt + 0.0001;
         end
-        global it=it-1
     end;
     
     # Assets: 0 to amax - exponentially spaced grid() - pexpgrid is parametr
     
     agrid = zeros(Twork, ngpa);
     
-    it=1;
-    
-    while it<=Twork
+    for it in 1:Twork
         agrid[it, 1] = max(borrowlim, nbl[it, 1])
-        ia=2
-        while ia<=ngpa
+        for ia in 2:ngpa
             agrid[it, ia] = agrid[it, ia-1] + exp(pexpgrid*(ia-1))
-            ia=ia+1
         end
         ltemp1 = (amax-agrid[it, 1])/(agrid[it, ngpa]-agrid[it, 1])
         agrid[it, :] = agrid[it, 1] .+ ltemp1 .* (agrid[it, :] .- agrid[it, 1])
-        global it=it+1
     end;
     
     agridret = zeros(Tret, ngpa, ngpp);
     
-    it=1;
-    
-    while it<=Tret
-        ip=1
-        while ip<=ngpp
+    for it in 1:Tret
+        for ip in 1:ngpp
             agridret[it, 1, ip] = max(borrowlim, nblret[it, ip])
-            ia=2
-            while ia<=ngpa
+            for ia in 2:ngpa
                 agridret[it, ia, ip] = agridret[it, ia-1, ip] + exp(pexpgrid*(ia-1))
-                ia=ia+1
             end
             ltemp1 = (amax-agridret[it, 1, ip])/(agridret[it, ngpa, ip]-agridret[it, 1, ip])
             agridret[it, :, ip] = agridret[it, 1, ip] .+ ltemp1 .* (agridret[it, :, ip] .- agridret[it, 1, ip])
-            ip=ip+1
         end
-        global it=it+1
     end;
     
     # Cash in Hand
@@ -576,18 +540,12 @@ begin
     display("Finished forming grids")
     
     target_mean_a = 238.82286
-    facc = 0.02 * target_mean_a
+    facc = 0.02*target_mean_a
     maxit = 10
     betaL = 0.97343
     betaH = 0.975
     
     j=1
-    
-    # beta = betaL
-    bet = ones(Ttot)
-    bet[1:Twork] = betaL .* ones(Twork)
-    bet[(Twork-11+1):Ttot] = RobustDemographicTrend * betaL .* ones(Tret+11);
-    
 end
 
 # ╔═╡ bc62fb6b-b7fd-41c5-a976-20d3c0c33dfd
@@ -628,19 +586,19 @@ md"""
 
 # ╔═╡ 17529f92-010f-42e2-94af-685f2bab86a6
 begin
-	# result = Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
-	result = Simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
-
+	
+    result = MPC_Simulations.Simulations(;
+		nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+	
 	csim 		= result[:csim]
 	csimB 		= result[:csimB]
 	csim_mean   = result[:csim_mean]
-	csimB_mean 	= result[:csimB_mean]
+	csimB_mean 	= result[:csimB_mean] 
 	csimT_mean  = result[:csimT_mean]
 	ysim_mean   = result[:ysim_mean]
 	asim_mean   = result[:asim_mean]
 	asim 		= result[:asim]
 	zsim 		= result[:zsim]
-	
 end
 
 # ╔═╡ 0d003c38-ca78-4baf-8800-d4dd7e32a1e7
@@ -726,10 +684,9 @@ end
 
 # ╔═╡ db8d6f55-8804-42f2-b57f-981c3322c6ba
 begin
-    begin
     n = length(z_toplot)
 
-    plot_MPC_3D = PlotlyJS.Plot(
+    PlotlyJS.Plot(
         PlotlyJS.scatter3d(
             x = x_toplot[1:n],
             y = y_toplot[1:n],
@@ -747,10 +704,10 @@ begin
             width=900, height=600
         )
     )
-    plot_MPC_3D
 end
 
-end
+# ╔═╡ bc487a47-1a43-4ed4-96cd-6e3b723de671
+Threads.nthreads()
 
 # ╔═╡ 0ca7c9f1-351f-4200-96c2-dc8b43d5ae03
 md"""
@@ -763,7 +720,7 @@ md"""
 # ╔═╡ Cell order:
 # ╟─6b16a89b-a71d-45bb-9309-8e34902eb87d
 # ╟─31d477d6-ff4a-4cec-8139-7c852df9600d
-# ╟─30aec05b-f715-4860-a87c-e361d219d606
+# ╠═30aec05b-f715-4860-a87c-e361d219d606
 # ╟─223db08c-44e5-417e-8fe2-28b00108ce03
 # ╠═6d2313f6-1641-475b-a8db-8b00e8d8cd54
 # ╠═c3a9536a-5842-42fa-bd1f-3cf6f38ea162
@@ -787,6 +744,10 @@ md"""
 # ╠═1cf07478-34c5-487e-aa4b-00d35b27a3eb
 # ╠═717ca8b7-b75a-4ee9-bedd-b6df3922ca05
 # ╠═6635a224-3b96-4d61-9961-685174e8904d
+# ╟─667ec400-2d6e-4122-876b-f48892a853ad
+# ╠═f4537385-addd-407e-a002-bd3b5430f51a
+# ╟─3f35af3d-385a-44cf-9d8c-2d62c4684702
+# ╠═9efcd4f9-9de6-49bc-9351-33a54b70b08b
 # ╠═b7fb3dd3-fbd9-4783-b834-4a6f3eb81c90
 # ╟─efcd4f9f-f32b-4b68-b973-01622a8155a7
 # ╠═4d83e431-91ea-4bcd-b7ca-4dcf11a5a992
@@ -806,4 +767,5 @@ md"""
 # ╟─92614c7c-2cdb-48ef-b694-ca03e1a535db
 # ╠═1a83505f-22ba-4847-9ae5-c6fc4a52b011
 # ╠═db8d6f55-8804-42f2-b57f-981c3322c6ba
+# ╠═bc487a47-1a43-4ed4-96cd-6e3b723de671
 # ╟─0ca7c9f1-351f-4200-96c2-dc8b43d5ae03
