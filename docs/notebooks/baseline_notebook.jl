@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.28
+# v1.0.4
 
 using Markdown
 using InteractiveUtils
@@ -282,7 +282,7 @@ begin
     stax = 2.0e-4
     GrossIncome = 0;
     
-    kappa = open("../input/kappasmoothPSID35.txt") do file
+    kappa = open("./input/kappasmoothPSID35.txt") do file
         readlines(file)
     end;
     kappa = map(x->parse(Float64, x), kappa);
@@ -297,7 +297,7 @@ begin
     
     # survival probabilities
     
-    surprob = open("../input/surprobsmooth.txt") do file
+    surprob = open("./input/surprobsmooth.txt") do file
         readlines(file)
     end;
     surprob = map(x->parse(Float64, x), surprob);
@@ -305,7 +305,7 @@ begin
     # age-specific variances
     
     if AgeSpecificVariances==1
-        varetaage = open("../input/varetaage.txt") do file
+        varetaage = open("./input/varetaage.txt") do file
             readlines(file)
         end;
         varetaage = map(x->parse(Float64, x), varetaage);
@@ -342,7 +342,7 @@ begin
     
     # Initial wealth distribution
     
-    initwealthdist = open("../input/initwealthdist.txt") do file
+    initwealthdist = open("./input/initwealthdist.txt") do file
         readdlm(file)
     end;
     
@@ -546,6 +546,11 @@ begin
     betaH = 0.975
     
     j=1
+    
+    # beta = betaL
+    bet = ones(Ttot)
+    bet[1:Twork] = betaL .* ones(Twork)
+    bet[(Twork-11+1):Ttot] = RobustDemographicTrend * betaL .* ones(Tret+11);
 end
 
 # ╔═╡ bc62fb6b-b7fd-41c5-a976-20d3c0c33dfd
