@@ -18,19 +18,17 @@ function Simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, 
     Retirement_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
 
     # Return formatted result
-    Result_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
+    results = Result_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
 
     @info ("\nSimulations done.")
+
+    return results
 end
 
 function Initialisation_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
 
     global nnsim  = zeros(nsim, Ttot);
     global agesim = zeros(nsim, Ttot);
-
-    # set random number seed
-
-    global rng = MersenneTwister(1234);
     
     # initial earnings
 
