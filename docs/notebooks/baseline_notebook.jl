@@ -628,7 +628,8 @@ md"""
 
 # ╔═╡ 17529f92-010f-42e2-94af-685f2bab86a6
 begin
-	result = Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+	# result = Simulations(nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+	result = Simulations()
 
 	csim 		= result[:csim]
 	csimB 		= result[:csimB]
