@@ -29,7 +29,7 @@ module MPC_Simulations
     include("./0_Module_FnTaxParamNetMA0NuUI2.jl")
 
     # Functionized scripts
-    include("./1_Function_CashInHands.jl")
+    include("./1_Function_GridsFormation.jl")
     include("./1_Function_AgesResolution.jl")
     include("./1_Function_Simulations.jl")
     include("./1_Function_pathCAIncome.jl")

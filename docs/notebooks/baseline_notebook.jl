@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v1.0.4
+# v0.20.28
 
 using Markdown
 using InteractiveUtils
@@ -22,12 +22,27 @@ begin
 
     # Activate the notebook's own environment.
     Pkg.activate(@__DIR__)
+
+    packages = [
+        "PlutoUI",
+        "Distributions",
+        "Roots",
+        "StatsFuns",
+        "Plots",
+        "PlotlyJS",
+        "Colors",
+        "StatsBase",
+        "DataFrames",
+        "IterTools",
+        "Flatten"
+    ]
+
+    for package in packages
+        Pkg.add(package)
+    end
+    
     Pkg.instantiate()
 
-    # Use the local package source.
-    Pkg.develop(path = joinpath(@__DIR__, "..", ".."))
-
-    using MPC_Simulations
     using PlutoUI
 
     using Distributions
@@ -49,6 +64,15 @@ begin
     using Dates
     using Base.Threads
 end;
+
+# ╔═╡ edb70b5f-08f4-41c1-ab24-c1ec5deca300
+begin 
+    # Use the local package source.
+    # Pkg.develop(path = joinpath("/Users/paulogcd/.julia/dev/MPC_Simulations"))
+    Pkg.develop(path = joinpath(@__DIR__, "..", ".."))
+
+    using MPC_Simulations 
+end
 
 # ╔═╡ 6b16a89b-a71d-45bb-9309-8e34902eb87d
 md"""
@@ -150,6 +174,9 @@ begin
 	ngpm = 5;
 	ngpp = ngpal * ngpm * ngpz * ngpe;
 end
+
+# ╔═╡ 49e3408e-b830-4beb-8bab-d104d51eff02
+md""" ### Other parameters """
 
 # ╔═╡ b7fb3dd3-fbd9-4783-b834-4a6f3eb81c90
 begin
@@ -265,7 +292,7 @@ begin
     stax = 2.0e-4
     GrossIncome = 0;
     
-    kappa = open(joinpath(@__DIR__, "input", "kappasmoothPSID35.txt")) do file
+    kappa = open("../input/kappasmoothPSID35.txt") do file
         readlines(file)
     end;
     kappa = map(x->parse(Float64, x), kappa);
@@ -280,7 +307,7 @@ begin
     
     # survival probabilities
     
-    surprob = open(joinpath(@__DIR__, "input", "surprobsmooth.txt")) do file
+    surprob = open("../input/surprobsmooth.txt") do file
         readlines(file)
     end;
     surprob = map(x->parse(Float64, x), surprob);
@@ -288,7 +315,7 @@ begin
     # age-specific variances
     
     if AgeSpecificVariances==1
-        varetaage = open(joinpath(@__DIR__, "input", "varetaage.txt")) do file
+        varetaage = open("../input/varetaage.txt") do file
             readlines(file)
         end;
         varetaage = map(x->parse(Float64, x), varetaage);
@@ -325,7 +352,7 @@ begin
     
     # Initial wealth distribution
     
-    initwealthdist = open(joinpath(@__DIR__, "input", "initwealthdist.txt")) do file
+    initwealthdist = open("../input/initwealthdist.txt") do file
         readdlm(file)
     end;
     
@@ -384,144 +411,25 @@ begin
     pencap = pencapfrac*sum(avearnspre)/real(Twork);
     
     # Simulate to get distribution of average pre-tax incomes
-    
-    zsimI = zeros(Int8, nsim, Twork);
-    esimI = zeros(Int8, nsim, Twork);
-    alsimI = zeros(Int8, nsim);
-    nusimI = zeros(Int8, nsim, Twork);
-    
-    
-    zsimI[:, 1]=sample(rng, collect(1:ngpz), weights(zdist[1, :]), nsim);
-    esimI[:, 1]=sample(rng, collect(1:ngpe), weights(edist[1, :]), nsim);
-    alsimI[:]=sample(rng, collect(1:ngpal), weights(aldist[:]), nsim);
-    
-    ypresim = zeros(nsim, Ttot);
-    yavsim = zeros(nsim, Twork);
-    
-    for inn in 1:nsim
-        nudist = Binomial(1, pzgrid[1, zsimI[inn, 1]])
-        nu = rand(rng, nudist, 1)[1] #nu=1 means unemployment; nu=0 means employment
-        #I compute only on employed people=#
-        ypresim[inn, 1] = ypregrid[1, zsimI[inn, 1], esimI[inn, 1], alsimI[inn], 1]
-        yavsim[inn, 1] = min(ypresim[inn, 1], pencap)
-        for it in 2:Twork
-            zsimI[inn, it]=sample(rng, collect(1:ngpz), weights(ztrans[it-1, zsimI[inn, it-1], :]), 1)[1, 1]
-            esimI[inn, it]=sample(rng, collect(1:ngpe), weights(edist[it, :]), 1)[1, 1]
-            nudist = Binomial(1, pzgrid[it, zsimI[inn, it]])
-            nu = rand(rng, nudist, 1)[1]
-            #I compute only on employed people=#
-            ypresim[inn, it] = ypregrid[it, zsimI[inn, it], esimI[inn, it], alsimI[inn], 1]
-            yavsim[inn, it] = ((it-1)*yavsim[inn, it-1] + min(ypresim[inn, it], pencap))/real(it)
-        end
-    end;
-    
-    # equally spaced between 5th perc and median(), and median and 95th perc
-    
-    mgrid = zeros(Twork, ngpm);
-    
-    for it in 1:Twork
-        lyavsim = yavsim[:, it]
-        lyavsim=sort(lyavsim)
-        lperc5 = lyavsim[round(Int, nsim*0.05)]
-        lperc50 = lyavsim[round(Int, nsim*0.5)]
-        lperc95 = lyavsim[round(Int, nsim*0.95)]
-    
-        mgrid[it, 1] = lperc5
-        mgrid[it, round(Int, (1+ngpm)/2)] = lperc50
-        mgrid[it, ngpm] = lperc95
-    
-        lwidth_1 = (mgrid[it, round(Int, (1+ngpm)/2)] - mgrid[it, 1])/real((ngpm-1)/2)
-        lwidth2 = (mgrid[it, ngpm] - mgrid[it, round(Int, (1+ngpm)/2)])/real((ngpm-1)/2)
-    
-        for im in Int.(2:((ngpm-1)/2))
-            mgrid[it, im] = mgrid[it, im-1] + lwidth_1
-        end
-        for im in (round(Int, (ngpm+1)/2 + 1)):(ngpm-1)
-            mgrid[it, im] = mgrid[it, im-1] + lwidth2
-        end
-    end;
-    
-    # Pensions
-    
-    if Pensions==1
-        rtsec, pgrid, ppregrid, pind = rtsecSSParam_lowr(0.1, 1.5, 1.0e-3, Twork, Tret, ngpm, ngpz, ngpe, ngpal, kappa, aldist, algrid, edist, egrid, zdist, zgrid, Display, BendPointsPostTax, ScaleBendPoints, UseFinalZPension, MatchAggPensionBen, avearnspre, avearnspost, mgrid, pencap, targetSSBenToLabinc, targetSSAvReplacement);
-    else
-        rtsec=1
-        pgrid=zeros(Tret, ngpp)
-        ppregrid=zeros(Tret, ngpp)
-        pind=ones(ngpm, ngpz, ngpe, ngpal)
-    end
-    
-    # Natural borrowing limits
-    
-    # Last period
-    
-    nblret = zeros(Tret, ngpp);
-    
-    for ip in 1:ngpp
-        nblret[Tret, ip] = -pgrid[Tret, ip]/Rnetdebt + 0.0001;
-    end;
-    
-    # Retired
-    for it in Int.((Tret-1):-1:1)
-        for ip in 1:ngpp
-            nblret[it, ip] = annprem[it]*nblret[it+1, ip]/Rnetdebt-pgrid[it, ip]/Rnetdebt + 0.0001;
-        end
-    end;
-    
-    # Last Working Period
-    
-    nbl = zeros(Twork, ngpal);
-    for ial=1:ngpal
-        nbl[Twork, ial] = nblret[1, round(Int, pind[1, 1, 1, ial])]/Rnetdebt - ygrid[Twork, 1, 1, ial, 2]/Rnetdebt + 0.0001;
-    end
-    
-    # Working
-    
-    it = Twork-1;
-    
-    for it in (Twork-1):-1:1
-        for ial=1:ngpal
-            nbl[it, ial] = nbl[it+1, ial]/Rnetdebt - ygrid[it, 1, 1, ial, 2]/Rnetdebt + 0.0001;
-        end
-    end;
-    
-    # Assets: 0 to amax - exponentially spaced grid() - pexpgrid is parametr
-    
-    agrid = zeros(Twork, ngpa);
-    
-    for it in 1:Twork
-        agrid[it, 1] = max(borrowlim, nbl[it, 1])
-        for ia in 2:ngpa
-            agrid[it, ia] = agrid[it, ia-1] + exp(pexpgrid*(ia-1))
-        end
-        ltemp1 = (amax-agrid[it, 1])/(agrid[it, ngpa]-agrid[it, 1])
-        agrid[it, :] = agrid[it, 1] .+ ltemp1 .* (agrid[it, :] .- agrid[it, 1])
-    end;
-    
-    agridret = zeros(Tret, ngpa, ngpp);
-    
-    for it in 1:Tret
-        for ip in 1:ngpp
-            agridret[it, 1, ip] = max(borrowlim, nblret[it, ip])
-            for ia in 2:ngpa
-                agridret[it, ia, ip] = agridret[it, ia-1, ip] + exp(pexpgrid*(ia-1))
-            end
-            ltemp1 = (amax-agridret[it, 1, ip])/(agridret[it, ngpa, ip]-agridret[it, 1, ip])
-            agridret[it, :, ip] = agridret[it, 1, ip] .+ ltemp1 .* (agridret[it, :, ip] .- agridret[it, 1, ip])
-        end
-    end;
-    
-    # Cash in Hand
-    
-    resultatCashInHands = CashInHands(;Twork, Tret, ngpa, ngpz, ngpe, ngpal, ngpp, ygrid, agrid, agridret, cfloor, Rnetsave, Rnetdebt, pind, pgrid);
-    tran        = resultatCashInHands[:tran];
-    xgrid       = resultatCashInHands[:xgrid];
-    tranret     = resultatCashInHands[:tranret];
-    xgridret    = resultatCashInHands[:xgridret];
-    
-    display("Finished forming grids")
-    
+    Grids = Grids_formation(
+        ;nsim, Twork, rng, ngpz, ngpe, zdist, edist, ngpal, aldist, Ttot, pzgrid, ypregrid, ngpm, Tret, kappa, algrid, egrid, zgrid, Display, BendPointsPostTax, ScaleBendPoints, UseFinalZPension, MatchAggPensionBen, avearnspre, avearnspost, mgrid, pencap, targetSSBenToLabinc, targetSSAvReplacement, ztrans, Pensions, ngpp, Rnetdebt, annprem, ygrid, ngpa, borrowlim, pexpgrid, amax, cfloor, Rnetsave);
+
+    tran        = Grids.tran;
+    xgrid       = Grids.xgrid;
+    tranret     = Grids.tranret;
+    xgridret    = Grids.xgridret;
+    pgrid       = Grids.pgrid
+    agrid       = Grids.agrid
+    agridret    = Grids.agridret
+    pind        = Grids.pind
+    mgrid       = Grids.mgrid
+    ypresim     = Grids.ypresim
+    alsimI      = Grids.alsimI
+    zsimI       = Grids.zsimI
+    esimI       = Grids.esimI
+    ppregrid    = Grids.ppregrid
+    yavsim      = Grids.yavsim
+
     target_mean_a = 238.82286
     facc = 0.02*target_mean_a
     maxit = 10
@@ -575,8 +483,8 @@ md"""
 # ╔═╡ 17529f92-010f-42e2-94af-685f2bab86a6
 begin
 	
-    result = MPC_Simulations.Simulations(;
-		nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+    result = Simulations(;
+		nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
 	
 	csim 		= result[:csim]
 	csimB 		= result[:csimB]
@@ -707,8 +615,9 @@ md"""
 
 # ╔═╡ Cell order:
 # ╟─6b16a89b-a71d-45bb-9309-8e34902eb87d
-# ╟─31d477d6-ff4a-4cec-8139-7c852df9600d
 # ╠═30aec05b-f715-4860-a87c-e361d219d606
+# ╠═edb70b5f-08f4-41c1-ab24-c1ec5deca300
+# ╟─31d477d6-ff4a-4cec-8139-7c852df9600d
 # ╟─223db08c-44e5-417e-8fe2-28b00108ce03
 # ╠═6d2313f6-1641-475b-a8db-8b00e8d8cd54
 # ╠═c3a9536a-5842-42fa-bd1f-3cf6f38ea162
@@ -736,6 +645,7 @@ md"""
 # ╠═f4537385-addd-407e-a002-bd3b5430f51a
 # ╟─3f35af3d-385a-44cf-9d8c-2d62c4684702
 # ╠═9efcd4f9-9de6-49bc-9351-33a54b70b08b
+# ╟─49e3408e-b830-4beb-8bab-d104d51eff02
 # ╠═b7fb3dd3-fbd9-4783-b834-4a6f3eb81c90
 # ╟─efcd4f9f-f32b-4b68-b973-01622a8155a7
 # ╠═4d83e431-91ea-4bcd-b7ca-4dcf11a5a992

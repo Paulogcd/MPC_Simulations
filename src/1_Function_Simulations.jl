@@ -2,30 +2,34 @@ using StatsBase
 export Simulations
 
 """
-Missing documentation.
-"""
-function Simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
     
-    Initialisation_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
+    Simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+
+    Simulates the life of `nsim` individuals given all the parameters.
+
+"""
+function Simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+    
+    Simulations_1_initialisation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
 
     # Initial state (do t=1 separately)
-    Initial_state_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
+    Simulations_2_initial_state(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
 
     # working life (15)
-    Working_life_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
+    Simulations_3_working_life(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
                                                         
     # Retirement
-    Retirement_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
+    Simulation_4_retirement(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
 
     # Return formatted result
-    results = Result_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
+    results = Simulation_5_results(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid);
 
     @info ("\nSimulations done.")
 
     return results
 end
 
-function Initialisation_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+function Simulations_1_initialisation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
 
     global nnsim  = zeros(nsim, Ttot);
     global agesim = zeros(nsim, Ttot);
@@ -79,14 +83,14 @@ end
     
     This function computes the simulated variables at the initial state of the agents.
 """
-function Initial_state_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+function Simulations_2_initial_state(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
     
-    it=1
+    it = 1
 
     Threads.@threads for inn in 1:nsim
         
         rng = MersenneTwister(1234 + inn)
-        Tbreak[inn,it] = rand(rng, DiscreteUniform(2,Twork-6))
+        Tbreak[inn, it] = rand(rng, DiscreteUniform(2,Twork-6))
         
         # initial income
 
@@ -117,27 +121,27 @@ function Initial_state_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork,
             asim[inn,1] = max(asim[inn,1], agrid[1,1])
         end;
 
-        nnsim[inn,it] = inn;
-        agesim[inn,it] = 1;
-        if asim[inn,it]<0
-            trsim[inn,it]    = max( cfloor - (Rnetdebt*asim[inn,it]+ ysim[inn,it] - agrid[it+1,1]) ,0.0)
+        nnsim[inn, it] = inn;
+        agesim[inn, it] = 1;
+        if asim[inn, it]<0
+            trsim[inn, it]    = max( cfloor - (Rnetdebt*asim[inn,it]+ ysim[inn,it] - agrid[it+1,1]) ,0.0)
         else
-            trsim[inn,it]    = max( cfloor - (Rnetsave*asim[inn,it]+ ysim[inn,it] - agrid[it+1,1]) ,0.0)
+            trsim[inn, it]    = max( cfloor - (Rnetsave*asim[inn,it]+ ysim[inn,it] - agrid[it+1,1]) ,0.0)
         end
-        csim[inn,it] = LinInterp1(agrid[it,:],con[it,:,round(Int,msimI[inn,it]),zsimI[inn,it],esimI[inn,it],alsimI[inn],nu+1],asim[inn,it]+trsim[inn,it])
-        csimT[inn,it] = (R-1).*(asim[inn,it])+ysim[inn,it];
-        if trsim[inn,it]>0.0
-            csim[inn,it] = min(cfloor, csim[inn,it])
+        csim[inn, it] = LinInterp1(agrid[it,:],con[it,:,round(Int,msimI[inn,it]),zsimI[inn,it],esimI[inn,it],alsimI[inn],nu+1],asim[inn,it]+trsim[inn,it])
+        csimT[inn, it] = (R-1).*(asim[inn,it])+ysim[inn,it];
+        if trsim[inn, it]>0.0
+            csim[inn, it] = min(cfloor, csim[inn,it])
         end
-        if asim[inn,it]<0
-            xsim[inn,it]     = Rnetdebt*asim[inn,it]+ ysim[inn,it] + trsim[inn,it]
+        if asim[inn, it]<0
+            xsim[inn, it]     = Rnetdebt*asim[inn,it]+ ysim[inn,it] + trsim[inn,it]
         else
-            xsim[inn,it]     = Rnetsave*asim[inn,it]+ ysim[inn,it] + trsim[inn,it]
+            xsim[inn, it]     = Rnetsave*asim[inn,it]+ ysim[inn,it] + trsim[inn,it]
         end
-        asim[inn,it+1]   = xsim[inn,it] - csim[inn,it]
-        if asim[inn,it+1]<agrid[it+1,1]
-            asim[inn,it+1] = agrid[it+1,1]
-            csim[inn,it] = xsim[inn,it] - asim[inn,it+1]
+        asim[inn, it+1]   = xsim[inn,it] - csim[inn,it]
+        if asim[inn, it+1]<agrid[it+1,1]
+            asim[inn, it+1] = agrid[it+1,1]
+            csim[inn, it] = xsim[inn,it] - asim[inn,it+1]
         end
         if isnan(csim[inn,it])>0
             display("bad consumption")
@@ -145,7 +149,7 @@ function Initial_state_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork,
     end
 end
 
-function Working_life_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+function Simulations_3_working_life(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
     
     global psimI = zeros(nsim);
     global psimIB=psimI;
@@ -328,7 +332,7 @@ function Working_life_simulations(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, 
     end
 end
 
-function Retirement_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+function Simulation_4_retirement(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
     
     Threads.@threads for inn in 1:nsim
         for it in 1:Tret
@@ -361,7 +365,7 @@ function Retirement_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edi
     end
 end
 
-function Result_simulation(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, it, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
+function Simulation_5_results(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork, edist, ngpz, zdist, ypresim, alsimI, pencap, mgrid, ygrid, initwealthdist, zsimI, esimI, egrid, zgrid, kappa, yavsim, pzgrid, ypregrid, RobustInitWealth, cfloor, Rnetsave, agrid, con, R, ztrans, Rnetdebt, pind, agridret, Tret, pgrid, ppregrid, conret, annprem, algrid)
 
     alsim = zeros(nsim, Ttot)
     alsim = algrid[alsimI[:]]*ones(Ttot)'
