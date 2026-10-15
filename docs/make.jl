@@ -20,7 +20,7 @@ PlutoSliderServer.export_notebook(
 
 
 Documenter.makedocs(
-    sitename = "MPC_Simulations",
+    sitename = "MPC_Simulations.jl",
     # format = Documenter.HTML(),
     # modules = [MPC_Simulations]
 )
@@ -30,5 +30,5 @@ Documenter.makedocs(
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
 Documenter.deploydocs(
-    repo = "https://github.com/Paulogcd/MPC_Simulations/"
+    repo = "https://github.com/Paulogcd/MPC_Simulations.jl/"
 )

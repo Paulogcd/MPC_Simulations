@@ -12,4 +12,12 @@ This package was developed from the codebase of [Jeanne Commault](https://www.jc
 * The first plot is wrong due to asimB being inside the loop.
 
 * Plot a surface for all z, all age, all wealth, give MPC.
---> 
+
+* Create function run()
+
+* Write index
+
+* Write docs.
+
+* write step-by-step How to publish with GitHub pages on a fork.
+

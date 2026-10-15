@@ -82,9 +82,9 @@ notebook_start = time();
 # ╔═╡ 008030cd-5805-4ebd-91cd-6b4c57c297a8
 md""" # Introduction 
 
-This notebook illustrates the model presented in Commault, 2022, [Heterogeneity in MPC Beyond Liquid Wealth: The Role of Permanent Earnings](https://www.jcommault.com/media/HetMPC_Hal0425.pdf).
+This notebook illustrates the model presented in Commault, 2025, [Heterogeneity in MPC Beyond Liquid Wealth: The Role of Permanent Earnings](https://www.jcommault.com/media/HetMPC_Hal0425.pdf).
 
-It proposes a standard model that integrates the stylized fact according to which the MPC as a function of wealth is not completely flat.
+It proposes a standard model that reproduces the stylized fact according to which the MPC as a function of wealth is not completely flat.
 
 More is coming soon!
 
