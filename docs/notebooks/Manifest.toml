@@ -2,7 +2,7 @@
 
 julia_version = "1.13.1"
 manifest_format = "2.1"
-project_hash = "582f4305a44da3696dc329903e42ecefa997dd80"
+project_hash = "3740e1f731c1cf3a553c5c6cb407d5225176f976"
 
 [[deps.AbstractPlutoDingetjes]]
 git-tree-sha1 = "e71ee7b4aa06b045259a7d6101e1cb45ad140bce"
@@ -773,7 +773,7 @@ version = "1.1.0"
 
 [[deps.MPC_Simulations]]
 deps = ["Distributions", "LinearAlgebra", "Plots", "Random", "StatsBase", "StatsFuns"]
-path = "/Users/paulogcd/.julia/dev/MPC_Simulations/docs/notebooks/../.."
+path = "/Users/paulogcd/.julia/dev/MPC_Simulations.jl/docs/notebooks/../.."
 uuid = "a5351dc5-de12-4edb-8064-82b20ab8fbb5"
 version = "1.0.0-DEV"
 

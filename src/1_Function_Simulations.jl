@@ -221,8 +221,9 @@ function Simulations_3_working_life(;nsim, Ttot, rng, ngpal, ngpe, aldist, Twork
 
             it_3=it_3+1
         
-            asimB[:,it_3]=asim[:,it_3].+0.5 #=1*ysim[:,it_3-1]=#
         end
+        
+        asimB[:,it_3]=asim[:,it_3].+0.5 #=1*ysim[:,it_3-1]=#
 
         #edist and ztrans are what generate the trend
         while it_3<=Twork

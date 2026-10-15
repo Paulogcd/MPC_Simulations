@@ -17,6 +17,7 @@ macro bind(def, element)
 end
 
 # ╔═╡ 30aec05b-f715-4860-a87c-e361d219d606
+# ╠═╡ show_logs = false
 begin 
     using Pkg
 
@@ -34,7 +35,8 @@ begin
         "StatsBase",
         "DataFrames",
         "IterTools",
-        "Flatten"
+        "Flatten",
+        "Dates"
     ]
 
     for package in packages
@@ -67,12 +69,26 @@ end;
 
 # ╔═╡ edb70b5f-08f4-41c1-ab24-c1ec5deca300
 begin 
-    # Use the local package source.
-    # Pkg.develop(path = joinpath("/Users/paulogcd/.julia/dev/MPC_Simulations"))
+    # If running this notebook outside of its original location, use the GitHub version of the MPC_Simulations package by specifying its URL:
+    # Pkg.develop(path = joinpath("/Users/paulogcd/.julia/dev/MPC_Simulations.jl"))
     Pkg.develop(path = joinpath(@__DIR__, "..", ".."))
 
     using MPC_Simulations 
 end
+
+# ╔═╡ 92937c58-e369-4b0d-a2e6-c50d75611999
+notebook_start = time();
+
+# ╔═╡ 008030cd-5805-4ebd-91cd-6b4c57c297a8
+md""" # Introduction 
+
+This notebook illustrates the model presented in Commault, 2022, [Heterogeneity in MPC Beyond Liquid Wealth: The Role of Permanent Earnings](https://www.jcommault.com/media/HetMPC_Hal0425.pdf).
+
+It proposes a standard model that integrates the stylized fact according to which the MPC as a function of wealth is not completely flat.
+
+More is coming soon!
+
+"""
 
 # ╔═╡ 6b16a89b-a71d-45bb-9309-8e34902eb87d
 md"""
@@ -167,13 +183,13 @@ md""" ### Grid dimensions """
 # ╔═╡ 9efcd4f9-9de6-49bc-9351-33a54b70b08b
 begin
 	# GRIDS DIMENSION - STATE VARIABLES
-	ngpal = 4;
-	ngpe = 5;
-	ngpz = 10;
-	ngpa = 50;
-	ngpm = 5;
-	ngpp = ngpal * ngpm * ngpz * ngpe;
-end
+	ngpal = 4
+	ngpe = 5
+	ngpz = 10
+	ngpa = 50
+	ngpm = 5
+	ngpp = ngpal * ngpm * ngpz * ngpe
+end;
 
 # ╔═╡ 49e3408e-b830-4beb-8bab-d104d51eff02
 md""" ### Other parameters """
@@ -442,11 +458,11 @@ begin
     bet = ones(Ttot)
     bet[1:Twork] = betaL .* ones(Twork)
     bet[(Twork-11+1):Ttot] = RobustDemographicTrend * betaL .* ones(Tret+11);
-end
+end;
 
 # ╔═╡ bc62fb6b-b7fd-41c5-a976-20d3c0c33dfd
 md"""
-## Decisions Simulate30Nucbar_Parallel
+## Solving the optimal decisions per age
 """
 
 # ╔═╡ 8c3afca2-0418-4b95-a9a2-887269d8f8a1
@@ -470,7 +486,7 @@ end;
 # ╔═╡ 698c5ec7-f2ef-4227-a7f2-cbbfe33c9c89
 begin
 	Y = con[15, 25, 1, :, 2, 2, 1];
-	X = ygrid[15, :, 2, 2, 1];
+	X = ygrid[1, :, 2, 2, 1];
 
 	Plots.plot(X, Y)
 end
@@ -495,7 +511,7 @@ begin
 	asim_mean   = result[:asim_mean]
 	asim 		= result[:asim]
 	zsim 		= result[:zsim]
-end
+end;
 
 # ╔═╡ 0d003c38-ca78-4baf-8800-d4dd7e32a1e7
 md"""
@@ -509,7 +525,7 @@ plot_pathCAI(csim_mean, csimT_mean, ysim_mean, asim_mean, Ttot)
 md"""
 # MPC graphs
 
-1. MPC by wealth (où MPC = la différence entre csimB et csim,  et wealth = asim)
+1. MPC by wealth (where MPC is the difference between csimB and csim, and where wealth is the variable asim).
 
 """
 
@@ -520,6 +536,9 @@ begin
 	# The MPC of all individuals
 	MPC_toplot = csim .- csimB
 end;
+
+# ╔═╡ 310b5e0c-f21e-4fab-aab5-84759020088a
+
 
 # ╔═╡ 98dff502-edf7-4a82-bc21-27645c11e22e
 md"""
@@ -609,13 +628,43 @@ Threads.nthreads()
 md"""
 # Next steps
 
-- Define clearly the scope of the plots. What do we want to have?
-- Functionize the grid creation.
+- Definition of the plots' scope. What do we want to have?
+- Clearly document the internal functions of: 
+  - Grid creation functions
+  - Simulation functions
+- Documentation of parameters
+- Documentation of functions
+- Model documentation
+- Homogeneous function specifications
+
+"""
+
+# ╔═╡ 93b39b93-945c-40f1-8519-a7172a7e5aae
+MPC_toplot # MPC_toplot = csim .- csimB
+# MPC_toplot_2 = con[] .- con[..., agrid()]
+
+
+# ╔═╡ 260a23f3-e9ce-46df-97fa-d1bc6376eea0
+elapsed = time() - notebook_start;
+
+# ╔═╡ 9ba78830-d9fb-46d2-8ae8-1cb9796eaba5
+md"""
+## Execution information
+
+- **Elapsed time:** $(round(elapsed; digits=2)) seconds
+- **Julia:** $(VERSION)
+- **CPU:** $(Sys.CPU_NAME)
+- **Architecture:** $(Sys.ARCH)
+- **OS:** $(Sys.KERNEL)
+- **Julia threads:** $(Threads.nthreads())
+- **Timestamp:** $(Dates.now())
 """
 
 # ╔═╡ Cell order:
+# ╟─92937c58-e369-4b0d-a2e6-c50d75611999
+# ╟─008030cd-5805-4ebd-91cd-6b4c57c297a8
 # ╟─6b16a89b-a71d-45bb-9309-8e34902eb87d
-# ╠═30aec05b-f715-4860-a87c-e361d219d606
+# ╟─30aec05b-f715-4860-a87c-e361d219d606
 # ╠═edb70b5f-08f4-41c1-ab24-c1ec5deca300
 # ╟─31d477d6-ff4a-4cec-8139-7c852df9600d
 # ╟─223db08c-44e5-417e-8fe2-28b00108ce03
@@ -651,13 +700,14 @@ md"""
 # ╠═4d83e431-91ea-4bcd-b7ca-4dcf11a5a992
 # ╟─bc62fb6b-b7fd-41c5-a976-20d3c0c33dfd
 # ╠═8c3afca2-0418-4b95-a9a2-887269d8f8a1
-# ╟─698c5ec7-f2ef-4227-a7f2-cbbfe33c9c89
+# ╠═698c5ec7-f2ef-4227-a7f2-cbbfe33c9c89
 # ╟─4d68a76b-8440-48c2-bb3a-9c4a4d54c84a
 # ╠═17529f92-010f-42e2-94af-685f2bab86a6
 # ╟─0d003c38-ca78-4baf-8800-d4dd7e32a1e7
 # ╟─29d134e9-1125-4afb-b3b5-e59c3d054ef1
 # ╟─0da828e3-c519-42c6-a84d-2276994f1638
 # ╠═04e3cc38-62c8-4ca3-b280-9bce3ad479ac
+# ╠═310b5e0c-f21e-4fab-aab5-84759020088a
 # ╟─98dff502-edf7-4a82-bc21-27645c11e22e
 # ╠═9d13ec83-0741-478f-81b1-13e464d19155
 # ╟─1be25c52-c7f8-4abb-9a5f-ae24de79a3b0
@@ -667,3 +717,6 @@ md"""
 # ╠═db8d6f55-8804-42f2-b57f-981c3322c6ba
 # ╠═bc487a47-1a43-4ed4-96cd-6e3b723de671
 # ╟─0ca7c9f1-351f-4200-96c2-dc8b43d5ae03
+# ╠═93b39b93-945c-40f1-8519-a7172a7e5aae
+# ╟─260a23f3-e9ce-46df-97fa-d1bc6376eea0
+# ╟─9ba78830-d9fb-46d2-8ae8-1cb9796eaba5
